@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .box {
+            border: 1px solid #ccc;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        input, button {
+            margin-top: 6px;
+            margin-bottom: 12px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: #f7f7f7;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .small {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+
+    <div class="grid">
+        <div class="box">
+            <h2>Send Signal</h2>
+
+            <label>Admin Password:</label>
+            <input type="password" id="adminPassword" placeholder="Enter admin password">
+
+            <label>Telegram ID:</label>
+            <input type="text" id="telegramId" placeholder="Enter telegram id">
+
+            <label>Game:</label>
+            <input type="text" id="game" placeholder="aviator or mines">
+
+            <label>Value:</label>
+            <input type="text" id="value" placeholder="3.25x or safe cells: 2,5,7">
+
+            <button id="sendToUserBtn">Send Signal To User</button>
+            <button id="sendToAllBtn">Send Signal To All</button>
+            <button id="getOnlineBtn">Refresh Online Users</button>
+        </div>
+
+        <div class="box">
+            <h2>Online Users</h2>
+            <p class="small">Click on a user to copy their Telegram ID into the form.</p>
+            <ul id="onlineUsersList"></ul>
+        </div>
+    </div>
+
+    <div class="box" style="margin-top: 24px;">
+        <h2>Logs</h2>
+        <pre id="output"></pre>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const output = document.getElementById("output")
+        const onlineUsersList = document.getElementById("onlineUsersList")
+        const socket = io("http://localhost:3000")
+
+        function write(message) {
+            output.textContent += message + "\n"
+        }
+
+        function getFormData() {
+            return {
+                admin_password: document.getElementById("adminPassword").value,
+                telegram_id: document.getElementById("telegramId").value,
+                game: document.getElementById("game").value,
+                value: document.getElementById("value").value
+            }
+        }
+
+        function renderOnlineUsers(users) {
+            onlineUsersList.innerHTML = ""
+
+            if (!users.length) {
+                const li = document.createElement("li")
+                li.textContent = "No users online"
+                onlineUsersList.appendChild(li)
+                return
+            }
+
+            users.forEach((user) => {
+                const li = document.createElement("li")
+                li.innerHTML = `
+                    <strong>${user.username}</strong><br>
+                    Telegram ID: ${user.telegram_id}<br>
+                    Socket ID: ${user.socketId}
+                `
+
+                li.addEventListener("click", () => {
+                    document.getElementById("telegramId").value = user.telegram_id
+                    write("Selected user: " + user.telegram_id)
+                })
+
+                onlineUsersList.appendChild(li)
+            })
+        }
+
+        socket.on("connect", () => {
+            write(`ADMIN CONNECTED: ${socket.id}`)
+            socket.emit("get_online_users")
+        })
+
+        socket.on("signal_sent", (data) => {
+            write("SIGNAL SENT:")
+            write(JSON.stringify(data, null, 2))
+            write("")
+        })
+
+        socket.on("online_users", (users) => {
+            write("ONLINE USERS UPDATED")
+            renderOnlineUsers(users)
+        })
+
+        socket.on("error_message", (data) => {
+            write("ERROR:")
+            write(JSON.stringify(data, null, 2))
+            write("")
+        })
+
+        document.getElementById("sendToUserBtn").addEventListener("click", () => {
+            const data = getFormData()
+
+            socket.emit("admin_send_signal_to_user", {
+                admin_password: data.admin_password,
+                telegram_id: data.telegram_id,
+                game: data.game,
+                value: data.value
+            })
+        })
+
+        document.getElementById("sendToAllBtn").addEventListener("click", () => {
+            const data = getFormData()
+
+            socket.emit("admin_send_signal_to_all", {
+                admin_password: data.admin_password,
+                game: data.game,
+                value: data.value
+            })
+        })
+
+        document.getElementById("getOnlineBtn").addEventListener("click", () => {
+            socket.emit("get_online_users")
+        })
+    </script>
+</body>
+</html>

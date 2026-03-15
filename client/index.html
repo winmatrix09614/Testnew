@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predictor Signal System</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+
+<div class="app-bg"></div>
+
+<!-- LOGIN SCREEN -->
+
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <h1>Access Login</h1>
+        <p>Enter your ID and VIP code</p>
+
+        <input id="userIdInput" type="text" placeholder="159XXXXXXX" maxlength="10">
+        <input id="codeInput" type="text" placeholder="VIP-777">
+
+        <button id="loginBtn" class="primary-btn">LOGIN</button>
+        <p id="loginError" class="error-text"></p>
+    </div>
+</div>
+
+
+<!-- MAIN APP -->
+
+<div class="app hidden" id="mainApp">
+
+<header class="topbar">
+
+<div>
+<h1 class="logo">Predictor Signals</h1>
+<p class="subtitle">Realtime game signal platform</p>
+</div>
+
+<div class="status-box">
+<span class="status-dot" id="statusDot"></span>
+<span id="connectionStatus">Connecting...</span>
+</div>
+
+</header>
+
+
+
+<main class="main-grid">
+
+<!-- LEFT PANEL -->
+
+<section class="left-panel card">
+
+
+<!-- GAME TABS -->
+
+<div class="tabs" id="gameTabs">
+
+<button class="tab active" data-game="aviator">
+<img src="./assets/aviator/menu_aviator.png">
+Aviator
+</button>
+
+<button class="tab" data-game="mines">
+<img src="./assets/mines/menu_mines.png">
+Mines
+</button>
+
+<button class="tab" data-game="luckyjet">
+<img src="./assets/luckyjet/menu_luckyjet.jpg">
+Lucky Jet
+</button>
+
+<button class="tab" data-game="chicken">
+<img src="./assets/chicken/menu_chicken.png">
+Chicken
+</button>
+
+<button class="tab" data-game="penalty">
+<img src="./assets/penalty/menu_penalty.png">
+Penalty
+</button>
+
+</div>
+
+
+
+<!-- MINES CONTROLS -->
+
+<div id="minesControls" class="game-controls hidden-control">
+
+<div class="control-row">
+<button class="small-tab active" data-grid="3x3">3x3</button>
+<button class="small-tab" data-grid="5x5">5x5</button>
+</div>
+
+<div class="control-row">
+<button class="small-tab active" data-mode="safe">SAFE</button>
+<button class="small-tab" data-mode="highrisk">HIGH RISK</button>
+<div id="minesVipHint" class="vip-hint"></div>
+</div>
+
+<div class="control-row">
+<label class="control-label">Mines</label>
+
+<div class="mine-counter">
+<button id="decreaseMinesBtn" type="button">-</button>
+<span id="minesCountText">3</span>
+<button id="increaseMinesBtn" type="button">+</button>
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- CHICKEN CONTROLS -->
+
+<div id="chickenControls" class="game-controls hidden-control">
+
+<div class="control-row">
+
+<label class="control-label">Mode</label>
+
+<select id="chickenDifficultySelect" class="game-select">
+<option value="easy">EASY</option>
+<option value="medium">MEDIUM</option>
+<option value="hard">HARD</option>
+<option value="hardcore">HARDCORE</option>
+</select>
+
+</div>
+<div id="chickenVipHint" class="vip-hint"></div>
+</div>
+
+
+
+<!-- CURRENT SIGNAL -->
+
+<div class="hero-signal" id="heroSignal">
+
+<div class="signal-glow"></div>
+
+<p class="signal-label">Current Signal</p>
+
+<h2 class="signal-game" id="currentGameTitle">Aviator</h2>
+
+<div class="signal-value" id="currentSignalValue">
+Waiting...
+</div>
+
+<p class="signal-time" id="currentSignalTime">
+No signal yet
+</p>
+
+<div id="gameRenderArea"></div>
+
+
+<div class="hero-actions">
+
+<button id="getSignalBtn" class="primary-btn">
+GET SIGNAL
+</button>
+
+<div class="attempts-box">
+Attempts Left:
+<strong id="attemptsLeftText">5</strong>
+</div>
+
+</div>
+
+</div>
+
+
+</section>
+
+
+
+<!-- RIGHT PANEL -->
+
+<aside class="right-panel">
+
+<section class="card">
+
+<h3>Last Signals</h3>
+
+<div class="history-list" id="signalHistory"></div>
+
+</section>
+
+
+
+<section class="card">
+
+<h3>User Status</h3>
+
+<div class="info-row">
+<span>User ID</span>
+<strong id="userIdText">Not logged in</strong>
+</div>
+
+<div class="info-row">
+<span>Selected Game</span>
+<strong id="selectedGameText">Aviator</strong>
+</div>
+
+</section>
+
+</aside>
+
+
+</main>
+
+</div>
+
+<div id="vipModal" class="vip-modal hidden">
+    <div class="vip-modal-backdrop" id="vipModalBackdrop"></div>
+
+    <div class="vip-modal-card">
+        <button id="vipModalClose" class="vip-modal-close" type="button">×</button>
+
+        <div class="vip-modal-badge">VIP ACCESS</div>
+        <h3 class="vip-modal-title">Unlock advanced modes</h3>
+        <p class="vip-modal-text" id="vipModalText">
+            This mode is available only for VIP users.
+        </p>
+
+        <div class="vip-modal-actions">
+            <button id="vipModalOk" class="primary-btn" type="button">UNDERSTOOD</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="./games.js"></script>
+<script src="./socket.js"></script>
+<script src="./ui.js"></script>
+<script src="./app.js"></script>
+
+</body>
+</html>
